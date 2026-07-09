@@ -92,9 +92,11 @@ export default function App() {
     if (storedTheme === 'light') {
       setIsDarkMode(false);
       document.documentElement.classList.remove('dark');
+      updateThemeColor(false);
     } else {
       setIsDarkMode(true);
       document.documentElement.classList.add('dark');
+      updateThemeColor(true);
     }
 
     return () => {
@@ -115,15 +117,28 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  
+  const updateThemeColor = (isDark: boolean) => {
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', isDark ? '#0a0e1a' : '#ffffff');
+  };
+
   // 3. Dark Mode Toggle
   const toggleDarkMode = () => {
     const nextMode = !isDarkMode;
     setIsDarkMode(nextMode);
     if (nextMode) {
       document.documentElement.classList.add('dark');
+      updateThemeColor(true);
       localStorage.setItem('jstore_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      updateThemeColor(false);
       localStorage.setItem('jstore_theme', 'light');
     }
   };
