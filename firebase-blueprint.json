@@ -1,0 +1,33 @@
+{
+  "rulesVersion": "2",
+  "collections": {
+    "products": {
+      "rules": {
+        "read": "true",
+        "write": "true"
+      },
+      "schema": {}
+    },
+    "testimonials": {
+      "rules": {
+        "read": "true",
+        "write": "true"
+      },
+      "schema": {}
+    },
+    "messages": {
+      "rules": {
+        "read": "true",
+        "write": "true"
+      },
+      "schema": {}
+    },
+    "settings": {
+      "rules": {
+        "read": "true",
+        "write": "true"
+      },
+      "schema": {}
+    }
+  }
+}

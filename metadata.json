@@ -1,0 +1,6 @@
+{
+  "name": "Jhonny Solutions Store",
+  "description": "Una tienda e-commerce de tecnología elegante y moderna con catálogo dinámico, carrito de favoritos, ofertas con cuenta regresiva, sección de preguntas frecuentes y un panel de administración completo y seguro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
