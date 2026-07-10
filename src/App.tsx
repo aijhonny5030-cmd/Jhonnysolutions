@@ -3,10 +3,10 @@ import { ChevronUp, MessageCircle, Truck, ShieldCheck, Headphones, RefreshCw } f
 import { Product, Testimonial, Message, StoreSettings } from './types';
 import { DEFAULT_SETTINGS, FAQ_LIST } from './data';
 import {
-  subscribeToProducts,
-  subscribeToTestimonials,
-  subscribeToMessages,
-  subscribeToSettings,
+  fetchProducts,
+  fetchTestimonials,
+  fetchMessages,
+  fetchSettings,
   saveProduct,
   deleteProduct,
   saveTestimonial,
@@ -65,21 +65,34 @@ export default function App() {
     }
   };
 
-  // 1. Initial State Loading from Firebase
+    // 1. Initial State Loading from Firebase
   useEffect(() => {
-    // Fallback to stop loading if Firebase takes too long
+    let isMounted = true;
     const timeout = setTimeout(() => {
-      setIsAppLoading(false);
+      if (isMounted) setIsAppLoading(false);
     }, 3000);
 
-    const unsubProducts = subscribeToProducts(setProducts);
-    const unsubTestimonials = subscribeToTestimonials(setTestimonials);
-    const unsubMessages = subscribeToMessages(setMessages);
-    const unsubSettings = subscribeToSettings((s) => {
-      setSettings(s);
-      setIsAppLoading(false);
-      clearTimeout(timeout);
-    });
+    const loadData = async () => {
+      try {
+        const [fetchedProducts, fetchedTestimonials, fetchedSettings] = await Promise.all([
+          fetchProducts(),
+          fetchTestimonials(),
+          fetchSettings()
+        ]);
+        if (isMounted) {
+          setProducts(fetchedProducts);
+          setTestimonials(fetchedTestimonials);
+          setSettings(fetchedSettings);
+          setIsAppLoading(false);
+          clearTimeout(timeout);
+        }
+      } catch (err) {
+        console.error("Error loading data", err);
+        if (isMounted) setIsAppLoading(false);
+      }
+    };
+
+    loadData();
 
     // Wishlist from localStorage
     const storedWishlist = localStorage.getItem('jstore_wishlist');
@@ -100,13 +113,20 @@ export default function App() {
     }
 
     return () => {
-      unsubProducts();
-      unsubTestimonials();
-      unsubMessages();
-      unsubSettings();
+      isMounted = false;
       clearTimeout(timeout);
     };
   }, []);
+
+  const [messagesLoaded, setMessagesLoaded] = useState(false);
+  useEffect(() => {
+    if (isAdminPanelOpen && !messagesLoaded) {
+      fetchMessages().then(msgs => {
+        setMessages(msgs);
+        setMessagesLoaded(true);
+      });
+    }
+  }, [isAdminPanelOpen, messagesLoaded]);
 
   // 2. Scroll detection for showing the Floating scroll-to-top button
   useEffect(() => {

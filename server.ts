@@ -30,16 +30,26 @@ const startServer = async () => {
     db = getFirestore(appFirebase, config.firestoreDatabaseId);
   }
 
+    let cachedSettings = null;
+  let lastSettingsFetch = 0;
+  const SETTINGS_CACHE_TTL = 1000 * 60 * 60; // 1 hour
+
   async function getSettings() {
     if (!db) return null;
+    if (cachedSettings && (Date.now() - lastSettingsFetch < SETTINGS_CACHE_TTL)) {
+      return cachedSettings;
+    }
     try {
       const docRef = doc(db, 'config', 'settings');
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {
-        return snapshot.data();
+        cachedSettings = snapshot.data();
+        lastSettingsFetch = Date.now();
+        return cachedSettings;
       }
     } catch (err) {
       console.error("Error fetching settings for OG tags:", err);
+      if (cachedSettings) return cachedSettings;
     }
     return null;
   }

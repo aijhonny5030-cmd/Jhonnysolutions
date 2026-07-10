@@ -1,4 +1,5 @@
-import { collection, doc, getDocs, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+const fs = require('fs');
+let dbContent = `import { collection, doc, getDocs, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { Product, Testimonial, Message, StoreSettings } from './types';
 import { INITIAL_PRODUCTS, INITIAL_TESTIMONIALS, DEFAULT_SETTINGS } from './data';
@@ -20,7 +21,7 @@ export async function fetchCollection<T>(
     }
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
   } catch (err) {
-    console.error(`Error getting collection ${colName}`, err);
+    console.error(\`Error getting collection \${colName}\`, err);
     return fallbackData;
   }
 }
@@ -94,3 +95,5 @@ export async function saveSettings(settings: StoreSettings) {
   ) as StoreSettings;
   await setDoc(doc(db, 'config', 'settings'), cleanSettings);
 }
+`;
+fs.writeFileSync('src/db.ts', dbContent);
