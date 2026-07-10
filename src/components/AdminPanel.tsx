@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Trash2, Edit3, Plus, ArrowUpRight, Save, MessageSquare, Star, Settings, ShoppingBag, MessageCircle, Upload } from 'lucide-react';
 import { Product, Testimonial, Message, StoreSettings } from '../types';
 
+
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -133,53 +134,49 @@ export default function AdminPanel({
     setNewGalleryUrl('');
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setUrl: (url: string) => void) => {
+        const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setUrl: (url: string) => void) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 850 * 1024) {
-      onAddAlert('La imagen es grande. Se ajustará un poco para que pueda ser guardada.', 'info');
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          
-          const MAX_SIZE = 1200;
-          if (width > height) {
-            if (width > MAX_SIZE) {
-              height *= MAX_SIZE / width;
-              width = MAX_SIZE;
-            }
-          } else {
-            if (height > MAX_SIZE) {
-              width *= MAX_SIZE / height;
-              height = MAX_SIZE;
-            }
+    // Comprimir siempre para evitar límite de 1MB de Firestore
+    onAddAlert('Procesando imagen...', 'info');
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Reducir significativamente para permitir múltiples imágenes
+        const MAX_SIZE = 800;
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
           }
-          
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          
-          const mimeType = (file.type === 'image/jpeg' || file.type === 'image/jpg') ? 'image/jpeg' : 'image/png';
-          const dataUrl = canvas.toDataURL(mimeType, 0.9);
-          setUrl(dataUrl);
-        };
-        img.src = reader.result as string;
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Usar formato WebP para mantener la transparencia en PNGs con buena compresión
+        const isPng = file.type === 'image/png';
+        const mimeType = isPng ? 'image/webp' : 'image/jpeg';
+        const dataUrl = canvas.toDataURL(mimeType, 0.7);
+        setUrl(dataUrl);
+        onAddAlert('Imagen lista', 'success');
       };
-      reader.readAsDataURL(file);
-    } else {
-      // Keep original quality and format completely unmodified
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   // Submit product
