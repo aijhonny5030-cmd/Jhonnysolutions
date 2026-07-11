@@ -48,7 +48,7 @@ const startServer = async () => {
         return cachedSettings;
       }
     } catch (err) {
-      console.error("Error fetching settings for OG tags:", err);
+      if (!(err instanceof Error) || !err.message.includes("Quota limit exceeded")) console.error("Error fetching settings for OG tags:", err);
       if (cachedSettings) return cachedSettings;
     }
     return null;

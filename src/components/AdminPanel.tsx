@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Trash2, Edit3, Plus, ArrowUpRight, Save, MessageSquare, Star, Settings, ShoppingBag, MessageCircle, Upload } from 'lucide-react';
 import { Product, Testimonial, Message, StoreSettings } from '../types';
+import { storage } from '../firebase';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 
 
 interface AdminPanelProps {
@@ -134,21 +136,20 @@ export default function AdminPanel({
     setNewGalleryUrl('');
   };
 
-        const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setUrl: (url: string) => void) => {
+          const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setUrl: (url: string) => void) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Comprimir siempre para evitar límite de 1MB de Firestore
-    onAddAlert('Procesando imagen...', 'info');
+    onAddAlert('Procesando y subiendo imagen...', 'info');
+
     const reader = new FileReader();
     reader.onloadend = () => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
         
-        // Reducir significativamente para permitir múltiples imágenes
         const MAX_SIZE = 800;
         if (width > height) {
           if (width > MAX_SIZE) {
@@ -167,12 +168,22 @@ export default function AdminPanel({
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
         
-        // Usar formato WebP para mantener la transparencia en PNGs con buena compresión
         const isPng = file.type === 'image/png';
         const mimeType = isPng ? 'image/webp' : 'image/jpeg';
-        const dataUrl = canvas.toDataURL(mimeType, 0.7);
-        setUrl(dataUrl);
-        onAddAlert('Imagen lista', 'success');
+        const dataUrl = canvas.toDataURL(mimeType, 0.8);
+
+        try {
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${isPng ? 'webp' : 'jpg'}`;
+          const storageRef = ref(storage, `images/${fileName}`);
+          await uploadString(storageRef, dataUrl, 'data_url');
+          const downloadUrl = await getDownloadURL(storageRef);
+          
+          setUrl(downloadUrl);
+          onAddAlert('Imagen subida con éxito', 'success');
+        } catch (err) {
+          console.error("Error uploading image:", err);
+          onAddAlert('Error al subir imagen. ' + (err as Error).message, 'error');
+        }
       };
       img.src = reader.result as string;
     };
