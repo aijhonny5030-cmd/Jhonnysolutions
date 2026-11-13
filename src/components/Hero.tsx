@@ -55,28 +55,32 @@ export default function Hero({ products, settings, onProductClick }: HeroProps) 
         ))}
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-12 pt-10">
-        {/* Left column */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 flex flex-col items-center pt-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="flex-1 text-center lg:text-left"
+          className="w-full text-center flex flex-col items-center"
         >
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent/20 border border-accent/30 text-accent font-semibold text-xs uppercase tracking-widest rounded-full mb-6">
             <Award className="w-4 h-4 animate-spin-slow" /> {settings?.heroTagline || 'Tecnología de Vanguardia'}
           </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight">
-            {settings?.heroTitle1 || 'Soluciones Tecnológicas'} <br />
-            <span className="bg-gradient-to-r from-accent to-sky-400 bg-clip-text text-transparent">
-              {settings?.heroTitle2 || 'A tu Alcance'}
-            </span>
-          </h1>
-          <p className="mt-6 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+
+          {/* Hero Cover Image in place of Title */}
+          <div className="relative group w-full max-w-md lg:max-w-xl my-2 flex justify-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-accent to-purple-600 rounded-3xl opacity-20 blur-3xl group-hover:opacity-30 transition duration-500" />
+            <img
+              src={settings?.heroImage || "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80"}
+              alt={settings?.storeName || "Imagen de Portada"}
+              className="w-full h-auto rounded-3xl shadow-2xl relative z-10 border border-gray-200 dark:border-white/10 transform hover:scale-[1.01] transition-transform duration-500 object-cover"
+            />
+          </div>
+
+          <p className="mt-6 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto leading-relaxed">
             {settings?.heroDescription || 'Descubre los mejores productos y servicios tecnológicos con la calidad, garantía y asesoría experta que mereces. Explora nuestro catálogo premium hoy mismo.'}
           </p>
           
-          <div className="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start">
+          <div className="mt-8 flex flex-wrap gap-4 justify-center">
             <a
               href="#productos"
               className="glow-btn px-8 py-3.5 bg-accent text-white font-bold rounded-full text-base tracking-wide shadow-lg shadow-accent/25 hover:bg-sky-600 transition duration-300"
@@ -89,24 +93,6 @@ export default function Hero({ products, settings, onProductClick }: HeroProps) 
             >
               Contactar Soporte
             </a>
-          </div>
-        </motion.div>
-
-        {/* Right column (Hero Image Product Showcase) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex-1 max-w-md lg:max-w-xl flex justify-center"
-        >
-          <div className="relative group">
-            {/* Glowing aura effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-accent to-purple-600 rounded-3xl opacity-20 blur-3xl group-hover:opacity-30 transition duration-500" />
-            <img
-              src={settings?.heroImage || "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80"}
-              alt="Showcase de Tecnología"
-              className="w-full h-auto rounded-3xl shadow-2xl relative z-10 border border-gray-200 dark:border-white/10 transform hover:scale-[1.01] transition-transform duration-500"
-            />
           </div>
         </motion.div>
       </div>
